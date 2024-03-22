@@ -21,7 +21,7 @@ public class OrderController {
     @Autowired
     private OrderService orderService;
 
-    @PostMapping("/order/add")
+    @PostMapping("/order")
     public ResponseEntity<Order> createOrder(@RequestBody CreateOrderRequest req,
                                              @RequestHeader("Authorization") String jwt) throws Exception {
         User user = userService.findUserByJwtToken(jwt);
@@ -29,7 +29,7 @@ public class OrderController {
         return new ResponseEntity<>(order, HttpStatus.CREATED);
     }
 
-    @GetMapping("/orders")
+    @GetMapping("/orders/user")
     public ResponseEntity<List<Order>> getUserOrders(@RequestHeader("Authorization") String jwt) throws Exception {
         User user = userService.findUserByJwtToken(jwt);
         List<Order> orders = orderService.getUsersOrder(user.getId());

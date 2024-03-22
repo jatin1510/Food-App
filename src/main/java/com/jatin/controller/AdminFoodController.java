@@ -26,7 +26,7 @@ public class AdminFoodController {
     @Autowired
     private RestaurantService restaurantService;
 
-    @PostMapping("/create")
+    @PostMapping
     public ResponseEntity<Food> createFood(@RequestBody CreateFoodRequest req,
                                            @RequestHeader("Authorization") String jwt) throws Exception {
         User user = userService.findUserByJwtToken(jwt);
@@ -35,7 +35,7 @@ public class AdminFoodController {
         return new ResponseEntity<>(food, HttpStatus.CREATED);
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<MessageResponse> deleteFood(@PathVariable Long id,
                                                       @RequestHeader("Authorization") String jwt) throws Exception {
         User user = userService.findUserByJwtToken(jwt);
@@ -48,7 +48,7 @@ public class AdminFoodController {
         return new ResponseEntity<>(new MessageResponse("Food deleted successfully"), HttpStatus.ACCEPTED);
     }
 
-    @PutMapping("/availability/{id}")
+    @PutMapping("/{id}/availability")
     public ResponseEntity<? super Food> updateFoodAvailabilityStatus(@PathVariable Long id,
                                                                         @RequestHeader("Authorization") String jwt) throws Exception {
         User user = userService.findUserByJwtToken(jwt);

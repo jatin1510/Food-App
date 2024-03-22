@@ -25,7 +25,7 @@ public class IngredientController {
     @Autowired
     private UserService userService;
 
-    @PostMapping("/category/create")
+    @PostMapping("/category")
     public ResponseEntity<IngredientCategory> createIngredientCategory(CreateIngredientCategoryRequest req,
                                                                        @RequestHeader("Authorization") String jwt) throws Exception {
         User user = userService.findUserByJwtToken(jwt);
@@ -37,7 +37,7 @@ public class IngredientController {
         return new ResponseEntity<>(category, HttpStatus.CREATED);
     }
 
-    @PostMapping("/ingredientsItem/create")
+    @PostMapping("/item")
     public ResponseEntity<IngredientsItem> createIngredientItem(CreateIngredientItemRequest req,
                                                                 @RequestHeader("Authorization") String jwt) throws Exception {
         User user = userService.findUserByJwtToken(jwt);
@@ -49,7 +49,7 @@ public class IngredientController {
         return new ResponseEntity<>(item, HttpStatus.CREATED);
     }
 
-    @PutMapping("/stock/{ingredientId}")
+    @PutMapping("/{ingredientId}/stock")
     public ResponseEntity<IngredientsItem> updateIngredientStock(@PathVariable Long ingredientId,
                                                                  @RequestHeader("Authorization") String jwt) throws Exception {
         User user = userService.findUserByJwtToken(jwt);
@@ -64,7 +64,7 @@ public class IngredientController {
 
     @GetMapping("/items/{restaurantId}")
     public ResponseEntity<List<IngredientsItem>> getRestaurantIngredientItems(@PathVariable Long restaurantId,
-                                                                         @RequestHeader("Authorization") String jwt) throws Exception {
+                                                                              @RequestHeader("Authorization") String jwt) throws Exception {
         User user = userService.findUserByJwtToken(jwt);
         // TODO: Another restaurant owner cannot see my ingredients
 
@@ -72,9 +72,9 @@ public class IngredientController {
         return new ResponseEntity<>(items, HttpStatus.OK);
     }
 
-    @GetMapping("/categories/{restaurantId}")
+    @GetMapping("/restaurant/{restaurantId}/categories")
     public ResponseEntity<List<IngredientCategory>> getRestaurantIngredientCategories(@PathVariable Long restaurantId,
-                                                                         @RequestHeader("Authorization") String jwt) throws Exception {
+                                                                                      @RequestHeader("Authorization") String jwt) throws Exception {
         User user = userService.findUserByJwtToken(jwt);
         // TODO: Another restaurant owner cannot see my ingredients
 

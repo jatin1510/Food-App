@@ -35,14 +35,14 @@ public class CartController {
         return new ResponseEntity<>(cartItem, HttpStatus.OK);
     }
 
-    @DeleteMapping("/cart/remove/{cartItemId}")
+    @DeleteMapping("/cart-item/{cartItemId}/remove")
     public ResponseEntity<Cart> removeCartItem(@PathVariable Long cartItemId,
                                                @RequestHeader("Authorization") String jwt) throws Exception {
         Cart cart = cartService.removeItemFromCart(cartItemId, jwt);
         return new ResponseEntity<>(cart, HttpStatus.OK);
     }
 
-    @GetMapping("/cart/clear")
+    @DeleteMapping("/cart/clear")
     public ResponseEntity<Cart> clearCart(@RequestHeader("Authorization") String jwt) throws Exception {
         User user = userService.findUserByJwtToken(jwt);
         Cart cart = cartService.clearCart(user.getId());

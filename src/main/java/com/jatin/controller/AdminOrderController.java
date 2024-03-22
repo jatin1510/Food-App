@@ -23,7 +23,7 @@ public class AdminOrderController {
     @Autowired
     private RestaurantService restaurantService;
 
-    @GetMapping("/orders/{restaurantId}")
+    @GetMapping("/orders/restaurant/{restaurantId}")
     public ResponseEntity<List<Order>> getRestaurantOrders(@PathVariable Long restaurantId,
                                                            @RequestParam(required = false) String orderStatus,
                                                            @RequestHeader("Authorization") String jwt) throws Exception {
@@ -37,7 +37,7 @@ public class AdminOrderController {
                                                            @PathVariable String orderStatus,
                                                            @RequestHeader("Authorization") String jwt) throws Exception {
 
-        Order orders = orderService.updateOrder(orderId, orderStatus);
-        return new ResponseEntity<>(orders, HttpStatus.OK);
+        Order order = orderService.updateOrder(orderId, orderStatus);
+        return new ResponseEntity<>(order, HttpStatus.OK);
     }
 }
