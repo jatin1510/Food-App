@@ -101,8 +101,9 @@ public class RestaurantServiceImpl implements RestaurantService {
         RestaurantDto restaurantDto = new RestaurantDto();
         restaurantDto.setDescription(restaurant.getDescription());
         restaurantDto.setImages(restaurant.getImages());
-        restaurantDto.setTitle(restaurant.getName());
+        restaurantDto.setName(restaurant.getName());
         restaurantDto.setId(restaurantId);
+        restaurantDto.setOpen(restaurant.isOpen());
 
         boolean isFavorite = false;
         List<RestaurantDto> favourites = user.getFavorites();

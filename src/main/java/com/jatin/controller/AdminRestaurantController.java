@@ -23,10 +23,9 @@ public class AdminRestaurantController {
     @Autowired
     private UserService userService;
 
-    @PostMapping()
+    @PostMapping
     public ResponseEntity<Restaurant> createRestaurant(@RequestBody CreateRestaurantRequest req,
                                                        @RequestHeader("Authorization") String jwt) throws Exception {
-        System.out.println(req);
         User user = userService.findUserByJwtToken(jwt);
         Restaurant restaurant = restaurantService.createRestaurant(req, user);
         return new ResponseEntity<>(restaurant, HttpStatus.OK);

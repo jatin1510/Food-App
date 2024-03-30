@@ -26,8 +26,9 @@ public class IngredientController {
     private UserService userService;
 
     @PostMapping("/category")
-    public ResponseEntity<IngredientCategory> createIngredientCategory(CreateIngredientCategoryRequest req,
+    public ResponseEntity<IngredientCategory> createIngredientCategory(@RequestBody CreateIngredientCategoryRequest req,
                                                                        @RequestHeader("Authorization") String jwt) throws Exception {
+        System.out.println("createIngredientCategory Request: " + req);
         User user = userService.findUserByJwtToken(jwt);
         // TODO: Another restaurant owner cannot create ingredient category in my restaurant
         if (user.getRole() != USER_ROLE.ROLE_RESTAURANT_OWNER) {
@@ -38,7 +39,7 @@ public class IngredientController {
     }
 
     @PostMapping("/item")
-    public ResponseEntity<IngredientsItem> createIngredientItem(CreateIngredientItemRequest req,
+    public ResponseEntity<IngredientsItem> createIngredientItem(@RequestBody CreateIngredientItemRequest req,
                                                                 @RequestHeader("Authorization") String jwt) throws Exception {
         User user = userService.findUserByJwtToken(jwt);
         // TODO: Another restaurant owner cannot create ingredient in my restaurant
@@ -49,7 +50,7 @@ public class IngredientController {
         return new ResponseEntity<>(item, HttpStatus.CREATED);
     }
 
-    @PutMapping("/{ingredientId}/stock")
+    @PutMapping("/item/{ingredientId}/stock")
     public ResponseEntity<IngredientsItem> updateIngredientStock(@PathVariable Long ingredientId,
                                                                  @RequestHeader("Authorization") String jwt) throws Exception {
         User user = userService.findUserByJwtToken(jwt);
@@ -62,7 +63,7 @@ public class IngredientController {
         return new ResponseEntity<>(updatedItem, HttpStatus.ACCEPTED);
     }
 
-    @GetMapping("/items/{restaurantId}")
+    @GetMapping("/restaurant/{restaurantId}/items")
     public ResponseEntity<List<IngredientsItem>> getRestaurantIngredientItems(@PathVariable Long restaurantId,
                                                                               @RequestHeader("Authorization") String jwt) throws Exception {
         User user = userService.findUserByJwtToken(jwt);

@@ -8,6 +8,7 @@ import com.jatin.request.CreateFoodRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -21,7 +22,7 @@ public class FoodServiceImpl implements FoodService {
     public Food createFood(CreateFoodRequest req, Category category, Restaurant restaurant) {
         Food food = new Food();
 
-        food.setFoodCategory(req.getCategory());
+        food.setFoodCategory(req.getFoodCategory());
         food.setRestaurant(restaurant);
         food.setDescription(req.getDescription());
         food.setImages(req.getImages());
@@ -30,6 +31,7 @@ public class FoodServiceImpl implements FoodService {
         food.setIngredients(req.getIngredients());
         food.setSeasonal(req.isSeasonal());
         food.setVegetarian(req.isVegetarian());
+        food.setCreationDate(new Date());
 
         Food savedFood = foodRepository.save(food);
         restaurant.getFoods().add(savedFood);
@@ -46,15 +48,17 @@ public class FoodServiceImpl implements FoodService {
 
     @Override
     public List<Food> getRestaurantFoods(Long restaurantId,
-                                        boolean isVegetarian,
-                                        boolean isNonVegetarian,
-                                        boolean isSeasonal,
-                                        String foodCategory) {
+                                         boolean isVegetarian,
+                                         boolean isNonVegetarian,
+                                         boolean isSeasonal,
+                                         String foodCategory) {
         List<Food> foods = foodRepository.findByRestaurantId(restaurantId);
         if (isVegetarian) {
-            foods = filterByVegetarian(foods, true);
-        } else {
-            foods = filterByVegetarian(foods, false);
+            foods = filterByVegetarian(foods);
+        }
+
+        if (isNonVegetarian) {
+            foods = filterByNonVegetarian(foods);
         }
 
         if (isSeasonal) {
@@ -64,7 +68,12 @@ public class FoodServiceImpl implements FoodService {
         if (foodCategory != null && !foodCategory.isEmpty()) {
             foods = filterByCategory(foods, foodCategory);
         }
+
         return foods;
+    }
+
+    private List<Food> filterByNonVegetarian(List<Food> foods) {
+        return foods.stream().filter(food -> !food.isVegetarian()).collect(Collectors.toList());
     }
 
     private List<Food> filterByCategory(List<Food> foods, String foodCategory) {
@@ -75,8 +84,8 @@ public class FoodServiceImpl implements FoodService {
         return foods.stream().filter(Food::isSeasonal).collect(Collectors.toList());
     }
 
-    private List<Food> filterByVegetarian(List<Food> foods, boolean isVegetarian) {
-        return foods.stream().filter(food -> food.isVegetarian() == isVegetarian).collect(Collectors.toList());
+    private List<Food> filterByVegetarian(List<Food> foods) {
+        return foods.stream().filter(Food::isVegetarian).collect(Collectors.toList());
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.jatin.controller;
 import com.jatin.model.Category;
 import com.jatin.model.Restaurant;
 import com.jatin.model.User;
+import com.jatin.request.CategoryRequest;
 import com.jatin.service.CategoryService;
 import com.jatin.service.RestaurantService;
 import com.jatin.service.UserService;
@@ -26,10 +27,10 @@ public class CategoryController {
     private RestaurantService restaurantService;
 
     @PostMapping("/admin/category")
-    public ResponseEntity<Category> createCategory(@RequestBody Category category,
+    public ResponseEntity<Category> createCategory(@RequestBody CategoryRequest categoryRequest,
                                                    @RequestHeader("Authorization") String jwt) throws Exception {
         User user = userService.findUserByJwtToken(jwt);
-        Category createdCategory = categoryService.createCategory(category.getName(), user.getId());
+        Category createdCategory = categoryService.createCategory(categoryRequest.getName(), user.getId());
         return new ResponseEntity<>(createdCategory, HttpStatus.CREATED);
     }
 

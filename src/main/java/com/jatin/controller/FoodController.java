@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/food")
+@RequestMapping("/api")
 public class FoodController {
     @Autowired
     private FoodService foodService;
@@ -24,20 +24,20 @@ public class FoodController {
     @Autowired
     private RestaurantService restaurantService;
 
-    @GetMapping("/search")
+    @GetMapping("/food/search")
     public ResponseEntity<List<Food>> searchFood(@RequestParam String keyword,
                                                  @RequestHeader("Authorization") String jwt) throws Exception {
         User user = userService.findUserByJwtToken(jwt);
         return new ResponseEntity<>(foodService.searchFood(keyword), HttpStatus.OK);
     }
 
-    @GetMapping("/restaurant/{restaurantId}")
+    @GetMapping("/restaurant/{restaurantId}/foods")
     public ResponseEntity<List<Food>> getRestaurantFoods(@PathVariable Long restaurantId,
-                                              @RequestParam(required = false) boolean vegetarian,
-                                              @RequestParam(required = false) boolean nonVegetarian,
-                                              @RequestParam(required = false) boolean seasonal,
-                                              @RequestParam(required = false) String foodCategory,
-                                              @RequestHeader("Authorization") String jwt) throws Exception {
+                                                         @RequestParam(required = false) boolean vegetarian,
+                                                         @RequestParam(required = false) boolean nonVegetarian,
+                                                         @RequestParam(required = false) boolean seasonal,
+                                                         @RequestParam(required = false) String foodCategory,
+                                                         @RequestHeader("Authorization") String jwt) throws Exception {
         User user = userService.findUserByJwtToken(jwt);
         List<Food> foods = foodService.getRestaurantFoods(restaurantId, vegetarian, nonVegetarian, seasonal, foodCategory);
         return new ResponseEntity<>(foods, HttpStatus.OK);

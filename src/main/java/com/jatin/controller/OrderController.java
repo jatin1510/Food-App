@@ -3,7 +3,9 @@ package com.jatin.controller;
 import com.jatin.model.Order;
 import com.jatin.model.User;
 import com.jatin.request.CreateOrderRequest;
+import com.jatin.response.PaymentResponse;
 import com.jatin.service.OrderService;
+import com.jatin.service.PaymentService;
 import com.jatin.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,12 +23,17 @@ public class OrderController {
     @Autowired
     private OrderService orderService;
 
+    @Autowired
+    private PaymentService paymentService;
+
     @PostMapping("/order")
-    public ResponseEntity<Order> createOrder(@RequestBody CreateOrderRequest req,
-                                             @RequestHeader("Authorization") String jwt) throws Exception {
+    public ResponseEntity<PaymentResponse> createOrder(@RequestBody CreateOrderRequest req,
+                                                       @RequestHeader("Authorization") String jwt) throws Exception {
         User user = userService.findUserByJwtToken(jwt);
         Order order = orderService.createOrder(req, user);
-        return new ResponseEntity<>(order, HttpStatus.CREATED);
+
+        PaymentResponse paymentResponse = paymentService.createPaymentLink(order);
+        return new ResponseEntity<>(paymentResponse, HttpStatus.CREATED);
     }
 
     @GetMapping("/orders/user")

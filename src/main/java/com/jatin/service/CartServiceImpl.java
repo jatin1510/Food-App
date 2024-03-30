@@ -10,6 +10,9 @@ import com.jatin.request.AddCartItemRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -26,6 +29,18 @@ public class CartServiceImpl implements CartService {
     @Autowired
     private FoodService foodService;
 
+    private Boolean match(List<String> list1, List<String> list2) {
+        Map<String, Boolean> map = new HashMap<>();
+        for (String s : list2)
+            map.put(s, true);
+
+        boolean ans = true;
+        for (String s : list1)
+            ans = (ans && map.get(s) != null);
+
+        return ans;
+    }
+
     @Override
     public CartItem addItemToCart(AddCartItemRequest req, String jwt) throws Exception {
         User user = userService.findUserByJwtToken(jwt);
@@ -33,7 +48,7 @@ public class CartServiceImpl implements CartService {
         Cart cart = cartRepository.findByCustomerId(user.getId());
 
         for (CartItem cartItem : cart.getItems()) {
-            if (cartItem.getFood().equals(food)) {
+            if (cartItem.getFood().equals(food) && match(req.getIngredients(), cartItem.getIngredients())) {
                 int newQuantity = cartItem.getQuantity() + req.getQuantity();
                 return updateCartItemQuantity(cartItem.getId(), newQuantity);
             }
@@ -48,6 +63,9 @@ public class CartServiceImpl implements CartService {
 
         CartItem savedCartItem = cartItemRepository.save(newCartItem);
         cart.getItems().add(savedCartItem);
+        cart.setTotal(calculateCartTotal(cart));
+        cartRepository.save(cart);
+
         return savedCartItem;
     }
 
@@ -75,7 +93,7 @@ public class CartServiceImpl implements CartService {
 
         CartItem cartItem = cartItemOptional.get();
         cart.getItems().remove(cartItem);
-
+        cart.setTotal(calculateCartTotal(cart));
         return cartRepository.save(cart);
     }
 

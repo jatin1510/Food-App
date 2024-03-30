@@ -16,12 +16,14 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 @RestController
 @CrossOrigin
@@ -46,28 +48,57 @@ public class AuthController {
     public ResponseEntity<AuthResponse> createUserHandler(@RequestBody User user) throws Exception {
         User isEmailExist = userRepository.findByEmail(user.getEmail());
         if (isEmailExist != null) {
-            throw new Exception("Email address is already registered");
+            throw new Exception("Email is already used...");
         }
 
-        User createdUser = new User();
-        createdUser.setEmail(user.getEmail());
-        createdUser.setFullName(user.getFullName());
-        createdUser.setRole(user.getRole());
-        createdUser.setPassword(passwordEncoder.encode(user.getPassword()));
+        User createUser = new User();
+        createUser.setEmail(user.getEmail());
+        createUser.setFullName(user.getFullName());
+        createUser.setRole(user.getRole());
+        createUser.setPassword(passwordEncoder.encode(user.getPassword()));
 
-        User savedUser = userRepository.save(createdUser);
+        User savedUser = userRepository.save(createUser);
 
         Cart cart = new Cart();
         cart.setCustomer(savedUser);
-        cartRepository.save(cart);
 
-        Authentication authentication = new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword());
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        if (user.getRole() == USER_ROLE.ROLE_CUSTOMER) {
+            cartRepository.save(cart);
+        }
+
+
+//        Authentication authentication = new UsernamePasswordAuthenticationToken(user.getMail(), user.getPassword());
+//        SecurityContextHolder.getContext().setAuthentication(authentication);
+//
+//        String jwt = jwtProvider.generateToken(authentication);
+//
+//        AuthResponse authResponse = new AuthResponse();
+//        authResponse.setJwt(jwt);
+//        authResponse.setMessage("Register Success");
+//        authResponse.setRole(savedUser.getRole());
+//        return new ResponseEntity<>(authResponse, HttpStatus.CREATED);
+
+
+//        LoginRequest req = new LoginRequest();
+//        req.setMail(savedUser.getMail());
+//        req.setPassword(user.getPassword());
+//        return new ResponseEntity<>(signin(req).getBody(),HttpStatus.CREATED);
+
+        USER_ROLE role = user.getRole();
+        List<GrantedAuthority> authorities = new ArrayList<>();
+
+        authorities.add(new SimpleGrantedAuthority(role.toString()));
+
+        UserDetails userDetails = new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), authorities);
+
+        Authentication authentication = new UsernamePasswordAuthenticationToken(user.getEmail(), null, userDetails.getAuthorities());
+//        SecurityContextHolder.getContext().setAuthentication(authentication);
 
         String jwt = jwtProvider.generateToken(authentication);
 
         AuthResponse authResponse = new AuthResponse();
         authResponse.setJwt(jwt);
+        authResponse.setMessage("Signup Success");
         authResponse.setRole(savedUser.getRole());
 
         return new ResponseEntity<>(authResponse, HttpStatus.CREATED);
@@ -87,7 +118,7 @@ public class AuthController {
 
         AuthResponse authResponse = new AuthResponse();
         authResponse.setJwt(jwt);
-        authResponse.setMessage("Login successfully");
+        authResponse.setMessage("Login success");
         authResponse.setRole(USER_ROLE.valueOf(role));
 
         return new ResponseEntity<>(authResponse, HttpStatus.OK);
