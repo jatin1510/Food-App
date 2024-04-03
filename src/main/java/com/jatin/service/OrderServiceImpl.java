@@ -37,27 +37,19 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Order createOrder(CreateOrderRequest order, User user) throws Exception {
-        Address shippingAddress = order.getDeliveryAddress();
-        Address savedAddress = addressRepository.save(shippingAddress);
-
-        if (!user.getAddresses().contains(savedAddress)) {
-            user.getAddresses().add(savedAddress);
-            userRepository.save(user);
-        }
-
+        Address address = order.getDeliveryAddress();
         Restaurant restaurant = restaurantService.findRestaurantById(order.getRestaurantId());
 
         Order createdOrder = new Order();
         createdOrder.setCustomer(user);
-        createdOrder.setCreatedAt(new Date());
-        createdOrder.setOrderStatus("PENDING");
-        createdOrder.setDeliveryAddress(savedAddress);
         createdOrder.setRestaurant(restaurant);
+        createdOrder.setOrderStatus("PENDING");
+        createdOrder.setCreatedAt(new Date());
+        createdOrder.setDeliveryAddress(address);
 
         Cart cart = cartService.findCartByUserId(user.getId());
         List<OrderItem> orderItems = new ArrayList<>();
         for (CartItem cartItem : cart.getItems()) {
-
             OrderItem orderItem = new OrderItem();
             orderItem.setFood(cartItem.getFood());
             orderItem.setIngredients(cartItem.getIngredients());
@@ -73,8 +65,7 @@ public class OrderServiceImpl implements OrderService {
 
         Order savedOrder = orderRepository.save(createdOrder);
         restaurant.getOrders().add(savedOrder);
-        restaurantRepository.save(restaurant);
-
+        // restaurantRepository.save(restaurant);
         return savedOrder;
     }
 

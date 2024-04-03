@@ -105,9 +105,14 @@ public class AuthController {
     }
 
     @PostMapping("/signin")
-    public ResponseEntity<AuthResponse> signIn(@RequestBody LoginRequest request) {
+    public ResponseEntity<AuthResponse> signIn(@RequestBody LoginRequest request) throws Exception {
         String username = request.getEmail();
         String password = request.getPassword();
+
+        User isEmailExist = userRepository.findByEmail(username);
+        if (isEmailExist == null) {
+            throw new Exception("User does not exist");
+        }
 
         Authentication authentication = authenticate(username, password);
 

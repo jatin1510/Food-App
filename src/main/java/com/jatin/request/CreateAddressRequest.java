@@ -1,20 +1,13 @@
-package com.jatin.model;
+package com.jatin.request;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Address {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
-
+public class CreateAddressRequest {
     private String streetAddress;
 
     private String city;
@@ -24,8 +17,4 @@ public class Address {
     private String postalCode;
 
     private String country;
-
-    @JsonIgnore
-    @ManyToOne()
-    private User user;
 }

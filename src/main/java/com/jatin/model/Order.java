@@ -26,8 +26,6 @@ public class Order {
     @ManyToOne
     private Restaurant restaurant;
 
-    private Long totalAmount;
-
     private String orderStatus;
 
     private Date createdAt;
@@ -39,8 +37,6 @@ public class Order {
     private List<OrderItem> items;
 
     // private Payment payment;
-
-    private int totalItem;
 
     private Long totalPrice;
 }

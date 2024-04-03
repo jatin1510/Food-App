@@ -55,8 +55,8 @@ public class CartServiceImpl implements CartService {
         }
 
         CartItem newCartItem = new CartItem();
-        newCartItem.setFood(food);
         newCartItem.setCart(cart);
+        newCartItem.setFood(food);
         newCartItem.setQuantity(req.getQuantity());
         newCartItem.setIngredients(req.getIngredients());
         newCartItem.setTotalPrice(req.getQuantity() * food.getPrice());
@@ -64,7 +64,7 @@ public class CartServiceImpl implements CartService {
         CartItem savedCartItem = cartItemRepository.save(newCartItem);
         cart.getItems().add(savedCartItem);
         cart.setTotal(calculateCartTotal(cart));
-        cartRepository.save(cart);
+        // cartRepository.save(cart);
 
         return savedCartItem;
     }
@@ -101,7 +101,7 @@ public class CartServiceImpl implements CartService {
     public Long calculateCartTotal(Cart cart) throws Exception {
         long total = 0L;
         for (CartItem cartItem : cart.getItems())
-            total += cartItem.getFood().getPrice() * cartItem.getQuantity();
+            total += cartItem.getTotalPrice();
         return total;
     }
 

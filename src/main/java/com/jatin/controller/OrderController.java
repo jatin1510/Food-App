@@ -31,7 +31,6 @@ public class OrderController {
                                                        @RequestHeader("Authorization") String jwt) throws Exception {
         User user = userService.findUserByJwtToken(jwt);
         Order order = orderService.createOrder(req, user);
-
         PaymentResponse paymentResponse = paymentService.createPaymentLink(order);
         return new ResponseEntity<>(paymentResponse, HttpStatus.CREATED);
     }
