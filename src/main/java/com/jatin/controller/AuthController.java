@@ -6,10 +6,16 @@ import com.jatin.model.USER_ROLE;
 import com.jatin.model.User;
 import com.jatin.repository.CartRepository;
 import com.jatin.repository.UserRepository;
+import com.jatin.request.ForgotPasswordRequest;
 import com.jatin.request.LoginRequest;
+import com.jatin.request.ResetPasswordRequest;
 import com.jatin.response.AuthResponse;
+import com.jatin.response.MessageResponse;
 import com.jatin.service.CustomUserDetailsService;
+import com.jatin.service.EmailSenderService;
+import com.jatin.service.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -43,6 +49,15 @@ public class AuthController {
 
     @Autowired
     private CartRepository cartRepository;
+
+    @Autowired
+    private EmailSenderService emailSenderService;
+
+    @Autowired
+    private TokenService tokenService;
+
+    @Value("${spring.mail.username}")
+    private String email;
 
     @PostMapping("/signup")
     public ResponseEntity<AuthResponse> createUserHandler(@RequestBody User user) throws Exception {
@@ -140,5 +155,50 @@ public class AuthController {
         }
 
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+    }
+
+    @PostMapping("/forgot-password")
+    private ResponseEntity<MessageResponse> forgotPassword(@RequestBody ForgotPasswordRequest request) throws Exception {
+        String to = request.getEmail();
+        User isEmailExist = userRepository.findByEmail(to);
+        if (isEmailExist == null) {
+            return new ResponseEntity<>(new MessageResponse("User does not exist"), HttpStatus.BAD_REQUEST);
+        }
+
+        String token = tokenService.generateToken(to);
+        String subject = "Reset Your Password";
+        String htmlContent = "<!DOCTYPE html>"
+                + "<html>"
+                + "<head>"
+                + "<title>Password Reset</title>"
+                + "</head>"
+                + "<body>"
+                + "<h2>Password Reset Request</h2>"
+                + "<p>We received a request to reset the password associated with this email address. If you made this request, please click the link below to reset your password:</p>"
+                + "<p><a href=\"http://localhost:3000/reset-password?token=" + token + "\">Reset Password</a></p>"
+                + "<p>If you did not make this request, you can safely ignore this email.</p>"
+                + "<p>Thank you!</p>"
+                + "</body>"
+                + "</html>";
+
+        emailSenderService.sendEmail(to, subject, htmlContent);
+        return new ResponseEntity<>(new MessageResponse("Mail sent to your account"), HttpStatus.OK);
+    }
+
+    @PostMapping("/reset-password")
+    private ResponseEntity<MessageResponse> resetPassword(@RequestBody ResetPasswordRequest request) throws Exception {
+        String uId = request.getToken();
+        boolean isVerified = tokenService.verifyToken(uId);
+        if (!isVerified) {
+            return new ResponseEntity<>(new MessageResponse("Token Expired"), HttpStatus.FORBIDDEN);
+        }
+
+        User user = userRepository.findByEmail(tokenService.getEmail(uId));
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        userRepository.save(user);
+
+        // Reset Password Login
+        tokenService.removeToken(uId);
+        return new ResponseEntity<>(new MessageResponse("Password reset successfully"), HttpStatus.OK);
     }
 }

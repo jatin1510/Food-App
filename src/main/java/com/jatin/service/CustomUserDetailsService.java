@@ -24,7 +24,8 @@ public class CustomUserDetailsService implements UserDetailsService {
         User user = userRepository.findByEmail(username);
 
         if (user == null) {
-            throw new UsernameNotFoundException("User not found with email " + username);
+//            throw new UsernameNotFoundException("User not found with email " + username);
+            return null;
         }
 
         USER_ROLE role = user.getRole();
