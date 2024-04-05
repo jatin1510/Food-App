@@ -48,7 +48,7 @@ public class CartServiceImpl implements CartService {
         Cart cart = cartRepository.findByCustomerId(user.getId());
 
         for (CartItem cartItem : cart.getItems()) {
-            if (cartItem.getFood().equals(food) && match(req.getIngredients(), cartItem.getIngredients())) {
+            if (cartItem.getFood().equals(food) && !req.getIngredients().isEmpty() && !cartItem.getIngredients().isEmpty()  && match(req.getIngredients(), cartItem.getIngredients())) {
                 int newQuantity = cartItem.getQuantity() + req.getQuantity();
                 return updateCartItemQuantity(cartItem.getId(), newQuantity);
             }
@@ -123,6 +123,7 @@ public class CartServiceImpl implements CartService {
     public Cart clearCart(Long userId) throws Exception {
         Cart cart = findCartByUserId(userId);
         cart.getItems().clear();
+        cart.setTotal(0L);
         return cartRepository.save(cart);
     }
 }
