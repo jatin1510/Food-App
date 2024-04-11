@@ -9,7 +9,7 @@ import java.util.UUID;
 
 @Service
 public class TokenService {
-    private static final long EXPIRATION_TIME = 300000; // 5 minutes in milliseconds
+    private static final long EXPIRATION_TIME = 600000; // 10 minutes in milliseconds
 
     @Autowired
     private TokenRepository tokenRepository;
