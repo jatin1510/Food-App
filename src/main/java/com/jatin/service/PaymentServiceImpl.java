@@ -1,12 +1,17 @@
 package com.jatin.service;
 
 import com.jatin.model.Order;
+import com.jatin.repository.OrderRepository;
+import com.jatin.response.MessageResponse;
 import com.jatin.response.PaymentResponse;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.checkout.Session;
 import com.stripe.param.checkout.SessionCreateParams;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -15,8 +20,15 @@ public class PaymentServiceImpl implements PaymentService {
     @Value("${stripe.api.key}")
     private String stripeSecretKey;
 
+    @Autowired
+    private OrderService orderService;
+
+    @Autowired
+    private OrderRepository orderRepository;
+
     @Override
-    public PaymentResponse createPaymentLink(Order order) throws StripeException {
+    public PaymentResponse createPaymentLink(Long orderId) throws Exception {
+        Order order = orderService.findOrderById(orderId);
         Stripe.apiKey = stripeSecretKey;
         SessionCreateParams params = SessionCreateParams.builder()
                 .setMode(SessionCreateParams.Mode.PAYMENT)
@@ -29,7 +41,7 @@ public class PaymentServiceImpl implements PaymentService {
                                 .setPriceData(
                                         SessionCreateParams.LineItem.PriceData.builder()
                                                 .setCurrency("inr")
-                                                .setUnitAmount((long) order.getTotalPrice() * 100)
+                                                .setUnitAmount((long) order.getTotalPrice() * 100 + 70)
                                                 .setProductData(
                                                         SessionCreateParams.LineItem.PriceData.ProductData.builder()
                                                                 .setName("Hungrio Food")
@@ -44,5 +56,13 @@ public class PaymentServiceImpl implements PaymentService {
         PaymentResponse paymentResponse = new PaymentResponse();
         paymentResponse.setPayment_url(session.getUrl());
         return paymentResponse;
+    }
+
+    @Override
+    public MessageResponse paymentSuccess(Long orderId) throws Exception {
+        Order order = orderService.findOrderById(orderId);
+        order.setPaymentSuccess(true);
+        orderRepository.save(order);
+        return new MessageResponse("Payment Success");
     }
 }

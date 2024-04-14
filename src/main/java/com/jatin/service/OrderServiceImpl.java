@@ -96,6 +96,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public List<Order> getRestaurantsOrder(Long restaurantId, String orderStatus) throws Exception {
         List<Order> orders = orderRepository.findByRestaurantId(restaurantId);
+        orders = orders.stream().filter(Order::isPaymentSuccess).collect(Collectors.toList());
         if (orderStatus != null)
             orders = orders.stream().filter(order -> order.getOrderStatus().equals(orderStatus)).collect(Collectors.toList());
         return orders;

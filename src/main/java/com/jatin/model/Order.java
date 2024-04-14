@@ -36,7 +36,7 @@ public class Order {
     @OneToMany
     private List<OrderItem> items;
 
-    // private Payment payment;
+    boolean paymentSuccess = false;
 
     private Long totalPrice;
 }
