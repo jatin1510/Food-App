@@ -45,6 +45,14 @@ public class OrderController {
         return new ResponseEntity<>(messageResponse, HttpStatus.OK);
     }
 
+    @DeleteMapping("/order/payment/failure/{orderId}")
+    public ResponseEntity<MessageResponse> paymentFailure(@PathVariable Long orderId,
+                                                          @RequestHeader("Authorization") String jwt) throws Exception {
+        User user = userService.findUserByJwtToken(jwt);
+        orderService.cancelOrder(orderId);
+        return new ResponseEntity<>(new MessageResponse("Success"), HttpStatus.OK);
+    }
+
     @PostMapping("/order")
     public ResponseEntity<PaymentResponse> createOrder(@RequestBody CreateOrderRequest req,
                                                        @RequestHeader("Authorization") String jwt) throws Exception {

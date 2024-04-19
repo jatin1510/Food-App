@@ -33,7 +33,7 @@ public class PaymentServiceImpl implements PaymentService {
         SessionCreateParams params = SessionCreateParams.builder()
                 .setMode(SessionCreateParams.Mode.PAYMENT)
                 .setSuccessUrl("http://localhost:3000/payment/success/" + order.getId())
-                .setCancelUrl("http://localhost:3000/payment/failure")
+                .setCancelUrl("http://localhost:3000/payment/failure/" + order.getId())
                 .addPaymentMethodType(SessionCreateParams.PaymentMethodType.CARD)
                 .addLineItem(
                         SessionCreateParams.LineItem.builder()
@@ -41,7 +41,7 @@ public class PaymentServiceImpl implements PaymentService {
                                 .setPriceData(
                                         SessionCreateParams.LineItem.PriceData.builder()
                                                 .setCurrency("inr")
-                                                .setUnitAmount((long) order.getTotalPrice() * 100 + 70)
+                                                .setUnitAmount((long) order.getTotalPrice() * 100 + 7000)
                                                 .setProductData(
                                                         SessionCreateParams.LineItem.PriceData.ProductData.builder()
                                                                 .setName("Hungrio Food")

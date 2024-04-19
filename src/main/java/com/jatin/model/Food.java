@@ -31,7 +31,7 @@ public class Food {
     @ElementCollection
     private List<String> images;
 
-    private boolean available;
+    private boolean available = true;
 
     @ManyToOne
     private Restaurant restaurant;
